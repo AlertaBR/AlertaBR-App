@@ -19,3 +19,8 @@ def menu(options=[], color = Color.TRANSPARENT):
             print(f'{color.value}[ {i+1} ] {Color.TRANSPARENT.value}{options[i]}')
             sleep(0.3)
         return verif.forValidAnswer('\033[32mEscolha uma das opções:\033[m ', options)
+    
+    
+def getLocalTime():
+    from datetime import datetime
+    return datetime.now()
