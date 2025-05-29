@@ -4,76 +4,126 @@ import requests_cache
 from retry_requests import retry
 
 
-class FloodInformations:
+class enviromentInfos:
 
-    def __init__(self, url, params):
+    def __init__(self, latitude, longitude):
         # Setup the Open-Meteo API client with cache and retry on error
-        cache_session = requests_cache.CachedSession(".cache", expire_after=3600)
+        cache_session = requests_cache.CachedSession(
+            "../cache/cache-openmeteo", expire_after=3600
+        )
         retry_session = retry(cache_session, retries=5, backoff_factor=0.2)
-        openmeteo = openmeteo_requests.Client(session=retry_session)
-        
-        self.response = openmeteo.weather_api(url, params=params)
-        self.url = url
-        self.params = params
+        self.openmeteo = openmeteo_requests.Client(session=retry_session)
+        self.latitude = latitude
+        self.longitude = longitude
+        self.response = None
+
+    def showHourlyWeatherInfos(self):
+        """Mostra as informações de Enchentes por dia no local ou das previsiões de chuva e humidade
+
+        Args:
+            climate (climateTypes, optional): Define qual clima o usuário quer analisar. Defaults to climateTypes.FLOOD.
+        """
+        self.__getWeatherData()
+        self.__showInfos()
+    
+    def showDailyFloodInfos(self):
+        self.__getFloodData()
+        self.__showInfos()
 
 
-    def showLocationInfos(self):
+    def __showInfos(self):
         for i in range(len(self.response)):
             resp = self.response[i]
             print(f"Coordinates {resp.Latitude()}°N {resp.Longitude()}°E")
             print(f"Elevation {resp.Elevation()} m asl")
-            print(f"Timezone {resp.Timezone()}{resp.TimezoneAbbreviation()}")
-            print(f"Timezone difference to GMT+0 {resp.UtcOffsetSeconds()} s")
+            print(f"Timezone {resp.Timezone()}")
+    
+    def __getDaily(self):
+        """Retorna a data do dia a partindo de um response especificado
 
-    def getHourly(self):
-        # Process hourly data. The order of variables needs to be the same as requested.
+        Returns:
+            VariablesWithTime: Tipo de variável que retorna a data e hora do dado
+        """
+        return self.response[0].Daily()
+    
+    def __getHourly(self):
+        """Retorna o tempo do dia partindo de um response especificado
+
+        Returns:
+            VariablesWithTime: Tipo de variável que retorna a data e hora do dado
+        """
         return self.response[0].Hourly()
 
+    def createFloodDataFrame(self):
+        """
+            Cria uma tabela em terminal com as informações da descarga do rio em m³
+        """
+        self.__getFloodData()
+        daily = self.__getDaily()
 
-    def createDataFrame(self):
-        hourly = self.getHourly()
-        
-        hourly_rain = hourly.Variables(0).ValuesAsNumpy()
-        hourly_relative_humidity_2m = hourly.Variables(1).ValuesAsNumpy()
-        hourly_weather_code = hourly.Variables(2).ValuesAsNumpy()
-        hourly_cloud_cover = hourly.Variables(3).ValuesAsNumpy()
-        hourly_precipitation = hourly.Variables(4).ValuesAsNumpy()
+        daily_river_discharge = daily.Variables(0).ValuesAsNumpy()
+        daily_river_discharge_max = daily.Variables(0).ValuesAsNumpy()
 
-        hourly_data = {
-            "date": pd.date_range(
-                start=pd.to_datetime(hourly.Time(), unit="s", utc=True),
-                end=pd.to_datetime(hourly.TimeEnd(), unit="s", utc=True),
-                freq=pd.Timedelta(seconds=hourly.Interval()),
-                inclusive="left",
-            )
+        daily_data = {
+            "Data": pd.date_range(
+                start = pd.to_datetime(daily.Time(), unit = "s", utc = True),
+                end = pd.to_datetime(daily.TimeEnd(), unit = "s", utc = True),
+                freq = pd.Timedelta(seconds = daily.Interval()),
+                inclusive = "left"
+            ).strftime("%d/%m/%y")
         }
 
+        daily_data["Volume atual do rio"] = daily_river_discharge
+        daily_data["Volume máximo atingido"] = daily_river_discharge_max
+
+        daily_dataframe = pd.DataFrame(data=daily_data)
+        print(daily_dataframe)
+        
+    def createWeatherDataFrame(self):
+        self.__getWeatherData()
+        hourly = self.__getHourly()
+        
+        hourly_precipitation_probability = hourly.Variables(0).ValuesAsNumpy()
+        hourly_rain = hourly.Variables(1).ValuesAsNumpy()
+        hourly_relative_humidity_2m = hourly.Variables(2).ValuesAsNumpy()
+
+        hourly_data = {"date": pd.date_range(
+            start = pd.to_datetime(hourly.Time(), unit = "s", utc = True),
+            end = pd.to_datetime(hourly.TimeEnd(), unit = "s", utc = True),
+            freq = pd.Timedelta(seconds = hourly.Interval()),
+            inclusive = "left"
+        ).strftime("%d/%m/%y - %H:%M")}
+        
+        hourly_data["precipitation_probability"] = hourly_precipitation_probability
         hourly_data["rain"] = hourly_rain
         hourly_data["relative_humidity_2m"] = hourly_relative_humidity_2m
-        hourly_data["weather_code"] = hourly_weather_code
-        hourly_data["cloud_cover"] = hourly_cloud_cover
-        hourly_data["precipitation"] = hourly_precipitation
-
-        hourly_dataframe = pd.DataFrame(data=hourly_data)
+        
+        hourly_dataframe = pd.DataFrame(data = hourly_data)
         print(hourly_dataframe)
 
 
+    def __getFloodData(self):
+        url = "https://flood-api.open-meteo.com/v1/flood"
+        params = {
+            "latitude": 59.91,
+            "longitude": 10.75,
+            "daily": ["river_discharge_max", "river_discharge"],
+            "models": "seamless_v4",
+            "timeformat": "unixtime"
+        }
+        self.response = self.openmeteo.weather_api(url, params)
+    
+    def __getWeatherData(self):
+        url = "https://api.open-meteo.com/v4/forecast"
+        params = {
+            "latitude": self.latitude,
+            "longitude": self.longitude,
+            "hourly": ["precipitation_probability", "rain", "relative_humidity_2m"],
+            "current": ["relative_humidity_2m", "rain"],
+            "timezone": "auto",
+            "timeformat": "unixtime",
+        }
+        self.response = self.openmeteo.weather_api(url, params)
+    
 
 # Código principal
-url = "https://api.open-meteo.com/v1/forecast"
-params = {
-    "latitude": -23.5475,
-    "longitude": -46.6361,
-    "hourly": [
-        "rain",
-        "relative_humidity_2m",
-        "weather_code",
-        "cloud_cover",
-        "precipitation",
-    ],
-    "timezone": "America/Sao_Paulo",
-}
-
-floodObj = FloodInformations(url, params)
-floodObj.showLocationInfos()
-floodObj.createDataFrame()
