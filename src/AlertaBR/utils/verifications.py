@@ -1,8 +1,9 @@
-from AlertaBR.utils import helpers as h
+from utils import helpers as h
 
 def forceInputIsNumber(msg):
     """
     Função que força o input de número inteiro do usuárioh    msg (param) => Mensagem contida no input do usuário\n
+    msg (param) => Mensagem do usuário
     Tipo de retorno => int
     """
     num = input(msg)
@@ -10,6 +11,19 @@ def forceInputIsNumber(msg):
        print('Digite um número inteiro válido')
        num = input(msg)
     return int(num)
+
+def forValidAnswer(msg, options):
+    """
+    Função que força o usuário ser uma das opções que o menu exige
+    msg (param) => Mensagem do usuário
+    options => Opções mostradas para o usuário
+    Tipo de retorno => string
+    """
+    answ = input(msg).strip();
+    while not answ.isnumeric() or options[int(answ)-1] not in options:
+        print('Digite uma opção válida')
+        answ = input(msg);
+    return answ
 
 def checkIfEmailIsValid(email):
     """
