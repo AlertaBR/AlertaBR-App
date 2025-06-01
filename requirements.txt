@@ -3,3 +3,4 @@ pygame
 pandas
 openmeteo-sdk
 requests
+folium

@@ -1,4 +1,4 @@
-from utils import helpers as h
+import helpers as h
 
 def forceInputIsNumber(msg):
     """
@@ -34,3 +34,14 @@ def checkIfEmailIsValid(email):
     if not (h.containsValue(email, '@') and h.containsValue(email, '.com')):
         return False
     return True
+
+
+def replaceString(strValue):
+    fstring = ''
+    for i in range(len(strValue)):
+        char = strValue[i]
+        if strValue[i] == ' ':
+            char = '+'
+        fstring += char
+    
+    return fstring
