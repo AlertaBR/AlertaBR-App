@@ -2,6 +2,7 @@ import openmeteo_requests
 import pandas as pd
 import requests_cache
 from retry_requests import retry
+from verifications import ConvertUnix
 
 
 class enviromentInfos:
@@ -46,13 +47,13 @@ class enviromentInfos:
         """
         return self.response[0].Daily()
     
-    def __getHourly(self):
+    def __getCurrent(self):
         """Retorna o tempo do dia partindo de um response especificado
 
         Returns:
             VariablesWithTime: Tipo de variável que retorna a data e hora do dado
         """
-        return self.response[0].Hourly()
+        return self.response[0].Current()
 
     def createFloodData(self):
         """
@@ -62,47 +63,49 @@ class enviromentInfos:
         daily = self.__getDaily()
 
         daily_river_discharge = daily.Variables(0).ValuesAsNumpy()
-        daily_river_discharge_max = daily.Variables(0).ValuesAsNumpy()
 
         daily_data = {
             "Data": pd.date_range(
-                start = pd.to_datetime(daily.Time(), unit = "s", utc = True),
-                end = pd.to_datetime(daily.TimeEnd(), unit = "s", utc = True),
-                freq = pd.Timedelta(seconds = daily.Interval()),
-                inclusive = "left"
-            ).strftime("%d/%m/%y")
+                    start = pd.to_datetime(daily.Time(), unit = "s", utc = True),
+                    end = pd.to_datetime(daily.TimeEnd(), unit = "s", utc = True),
+                    freq = pd.Timedelta(seconds = daily.Interval()),
+                    inclusive = "left").strftime("%d/%m/%y"),
+            "Volume Atual (m³/s)": daily_river_discharge,
         }
-
-        daily_data["Volume atual do rio"] = daily_river_discharge
-        daily_data["Volume máximo atingido"] = daily_river_discharge_max
+        
+        for i in range(7):
+            for key in daily_data.keys():
+                print(f'{key}: {daily_data[key][i]}')
+            print()
+        
+        
         
     def createWeatherData(self):
+        """
+            Cria uma tabela em terminal com a previsão de chuva dos próximos dias 
+        """
+        currentWeather = {}
+        
         self.__getWeatherData()
-        hourly = self.__getHourly()
+        current = self.__getCurrent()
         
-        hourly_precipitation_probability = hourly.Variables(0).ValuesAsNumpy()
-        hourly_rain = hourly.Variables(1).ValuesAsNumpy()
-        hourly_relative_humidity_2m = hourly.Variables(2).ValuesAsNumpy()
+        currentWeather['Chuva(mm)'] = current.Variables(0).Value()
+        currentWeather['Previsão'] = current.Variables(1).Value()
+        currentWeather['Humidade Relativa'] = current.Variables(2).Value()
+        currentWeather['CoberturaNuvens'] = current.Variables(3).Value()
+        currentWeather['Pancadas'] = current.Variables(4).Value()
 
-        hourly_data = {"date": pd.date_range(
-            start = pd.to_datetime(hourly.Time(), unit = "s", utc = True),
-            end = pd.to_datetime(hourly.TimeEnd(), unit = "s", utc = True),
-            freq = pd.Timedelta(seconds = hourly.Interval()),
-            inclusive = "left"
-        ).strftime("%H:%M")}
-        
-        hourly_data["precipitation_probability"] = hourly_precipitation_probability
-        hourly_data["rain"] = hourly_rain
-        hourly_data["relative_humidity_2m"] = hourly_relative_humidity_2m
+        print(f"Current time {ConvertUnix(current.Time())}")
+        for k,v in currentWeather.items():
+            print(f'{k} atual: {v}')
 
 
     def __getFloodData(self):
         url = "https://flood-api.open-meteo.com/v1/flood"
         params = {
-            "latitude": 59.91,
-            "longitude": 10.75,
+            "latitude": self.latitude,
+            "longitude": self.longitude,
             "daily": ["river_discharge"],
-            "models": "seamless_v4",
             "timeformat": "unixtime",
             "forecast_days": 7
         }
@@ -114,12 +117,8 @@ class enviromentInfos:
         params = {
             "latitude": self.latitude,
             "longitude": self.longitude,
-            "current": ["rain", "precipitation", "relative_humidity_2m", "weather_code", "cloud_cover", "showers"],
+            "current": ["rain", "precipitation", "relative_humidity_2m", "cloud_cover", "showers"],
             "timezone": "auto",
-            "timeformat": "unixtime",
             "forecast_days": 1
         }
         self.response = self.openmeteo.weather_api(url, params)
-    
-
-# Código principal

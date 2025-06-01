@@ -1,6 +1,9 @@
 customtkinter
 pygame
 pandas
-openmeteo-sdk
+openmeteo-requests
 requests
+requests-cache
+retry-requests
+numpy
 folium

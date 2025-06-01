@@ -1,4 +1,9 @@
 import helpers as h
+from enum import Enum
+
+class Time:
+    Minutes = 0
+    Seconds = 1
 
 def forceInputIsNumber(msg):
     """
@@ -45,3 +50,20 @@ def replaceString(strValue):
         fstring += char
     
     return fstring
+
+def ConvertUnix(timestamp):
+    """Função que converte um tempo Unix atual em horas
+
+    Args:
+        timestamp (_int_): Tempo atual que o usuário quer converter
+    Returns:
+        int: O tempo enviado convertido em horas
+    """
+    from datetime import datetime as dt
+    
+    date = dt.fromtimestamp(timestamp)
+    
+    return f'{date.hour}:{date.minute}h'
+    
+    
+    

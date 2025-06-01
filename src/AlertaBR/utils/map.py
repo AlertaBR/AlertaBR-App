@@ -1,5 +1,6 @@
 import requests.api as req
 import verifications as verif
+import climatic as clima
 
 def formatAddress(street):
     if ' ' not in street:
@@ -10,12 +11,21 @@ def formatAddress(street):
     return street
 
 def getStreetResponse(userInput):
-    headers = {'User-Agent': 'my user agent'} # The problem was that the geocode function was directly calling the nominatim API rather than using the nominatim_request function which handles all the caching, user-agent, referer, etc.
     endpoint = f"https://nominatim.openstreetmap.org/search?q={userInput}&countrycodes=br&limit=1&format=json"
     
+    headers = {'User-Agent': 'my user agent'} # Os header devem ser definidos para que a requisição seja feita no endereço certo
+    
     response = req.get(endpoint, headers=headers)
-    return response.json()[0]
+    if response.status_code == 200:
+        return response.json()[0]
+    return {}
 
-userInput = input('Digite um endereço: ')
-userInput = formatAddress(userInput)
+
+userInput = formatAddress(input('Digite um endereço: '))
 dictStreet = getStreetResponse(userInput)
+
+env = clima.enviromentInfos(dictStreet['lat'], dictStreet['lon'])
+
+env.createWeatherData()
+print('\n')
+env.createFloodData()
