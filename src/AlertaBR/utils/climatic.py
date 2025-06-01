@@ -54,7 +54,7 @@ class enviromentInfos:
         """
         return self.response[0].Hourly()
 
-    def createFloodDataFrame(self):
+    def createFloodData(self):
         """
             Cria uma tabela em terminal com as informações da descarga do rio em m³
         """
@@ -75,11 +75,8 @@ class enviromentInfos:
 
         daily_data["Volume atual do rio"] = daily_river_discharge
         daily_data["Volume máximo atingido"] = daily_river_discharge_max
-
-        daily_dataframe = pd.DataFrame(data=daily_data)
-        print(daily_dataframe)
         
-    def createWeatherDataFrame(self):
+    def createWeatherData(self):
         self.__getWeatherData()
         hourly = self.__getHourly()
         
@@ -92,14 +89,11 @@ class enviromentInfos:
             end = pd.to_datetime(hourly.TimeEnd(), unit = "s", utc = True),
             freq = pd.Timedelta(seconds = hourly.Interval()),
             inclusive = "left"
-        ).strftime("%d/%m/%y - %H:%M")}
+        ).strftime("%H:%M")}
         
         hourly_data["precipitation_probability"] = hourly_precipitation_probability
         hourly_data["rain"] = hourly_rain
         hourly_data["relative_humidity_2m"] = hourly_relative_humidity_2m
-        
-        hourly_dataframe = pd.DataFrame(data = hourly_data)
-        print(hourly_dataframe)
 
 
     def __getFloodData(self):
@@ -107,21 +101,23 @@ class enviromentInfos:
         params = {
             "latitude": 59.91,
             "longitude": 10.75,
-            "daily": ["river_discharge_max", "river_discharge"],
+            "daily": ["river_discharge"],
             "models": "seamless_v4",
-            "timeformat": "unixtime"
+            "timeformat": "unixtime",
+            "forecast_days": 7
         }
         self.response = self.openmeteo.weather_api(url, params)
     
     def __getWeatherData(self):
-        url = "https://api.open-meteo.com/v4/forecast"
+        # API irá receber os dados por hora dps para fazer um cálculo de prevenção (que não é nossa intenção atual)
+        url = "https://api.open-meteo.com/v1/forecast"
         params = {
             "latitude": self.latitude,
             "longitude": self.longitude,
-            "hourly": ["precipitation_probability", "rain", "relative_humidity_2m"],
-            "current": ["relative_humidity_2m", "rain"],
+            "current": ["rain", "precipitation", "relative_humidity_2m", "weather_code", "cloud_cover", "showers"],
             "timezone": "auto",
             "timeformat": "unixtime",
+            "forecast_days": 1
         }
         self.response = self.openmeteo.weather_api(url, params)
     

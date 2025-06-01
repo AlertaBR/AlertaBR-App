@@ -10,7 +10,7 @@ class App(ctk.CTk):
         self.title("AlertaBR")
         self.geometry("390x844")
         self.resizable(0, 0)
-        self.wm_iconbitmap(default="./images/favicon.ico")
+      #  self.wm_iconbitmap(default="./images/favicon.ico")
         self.eval("tk::PlaceWindow . center")
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure((0, 1), weight=1)
