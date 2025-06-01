@@ -17,6 +17,9 @@ def forceInputIsNumber(msg):
        num = input(msg)
     return int(num)
 
+def containsValue(obj, value):
+    return value in obj
+
 def forValidAnswer(msg, options):
     """
     Função que força o usuário ser uma das opções que o menu exige
@@ -36,7 +39,7 @@ def checkIfEmailIsValid(email):
     email (param) => endereço de email do usuário\n
     Tipo de retorno => boolean
     """
-    if not (h.containsValue(email, '@') and h.containsValue(email, '.com')):
+    if not (containsValue(email, '@') and containsValue(email, '.com')):
         return False
     return True
 
@@ -65,5 +68,5 @@ def ConvertUnix(timestamp):
     
     return f'{date.hour}:{date.minute}h'
     
-    
+
     
