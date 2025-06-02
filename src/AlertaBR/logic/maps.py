@@ -1,6 +1,6 @@
 import requests.api as req
-import verifications as verif
-import climatic as clima
+import src.AlertaBR.logic.verifications as verif
+import src.AlertaBR.logic.climatic as clima
 
 def formatAddress(street):
     if ' ' not in street:
@@ -21,11 +21,11 @@ def getStreetResponse(userInput):
     return {}
 
 
-userInput = formatAddress(input('Digite um endereço: '))
-dictStreet = getStreetResponse(userInput)
+# userInput = formatAddress(input('Digite um endereço: '))
+# dictStreet = getStreetResponse(userInput)
 
-env = clima.enviromentInfos(dictStreet['lat'], dictStreet['lon'])
+# env = clima.enviromentInfos(dictStreet['lat'], dictStreet['lon'])
 
-env.createWeatherData()
-print('\n')
-env.createFloodData()
+# env.createWeatherData()
+# print('\n')
+# env.createFloodData()

@@ -1,4 +1,6 @@
 customtkinter
+tkintermapview
+CTkMessagebox
 pygame
 pandas
 openmeteo-requests
@@ -6,4 +8,3 @@ requests
 requests-cache
 retry-requests
 numpy
-folium

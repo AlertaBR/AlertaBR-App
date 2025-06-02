@@ -1,4 +1,4 @@
-from utils import verifications as verif
+from src.AlertaBR.logic import verifications as verif
 from enum import Enum
 from time import sleep
 

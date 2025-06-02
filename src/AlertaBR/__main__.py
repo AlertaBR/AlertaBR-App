@@ -1,5 +1,5 @@
-from utils.tools import Color, menu, getLocalTime
-from utils.options import switchMenu
+from logic.tools import Color, menu, getLocalTime
+from logic.options import switchMenu
 
 def main():
     # Substituir pela localização atual no google maps
