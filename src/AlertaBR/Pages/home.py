@@ -54,7 +54,7 @@ class App(ctk.CTk):
       self.searchEntry.grid(row=0, column=0, padx=10, pady=80)
       
       # Criando botão
-      searchIcon = ctk.CTkImage(light_image=Image.open("images/search.png"), size=(20, 20))
+      searchIcon = ctk.CTkImage(light_image=Image.open("src/AlertaBR/Pages/images/search.png"), size=(20, 20))
       self.searchButton = ctk.CTkButton(self, width=40, height=40, corner_radius=5, image=searchIcon, text='', command=self.setOnMapRegion, fg_color="#00285C", hover_color="#004FB6")
    #   self.searchButton.place(relx=0.5, rely=0.08, anchor="nw")
       self.searchButton.grid(row=0, column=1, padx=10, pady=80)
