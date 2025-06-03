@@ -198,6 +198,10 @@ class App(ctk.CTk):
         self.humid.grid(row=1, column=2)
         self.rainInMM.grid(row=2, column=2)
         self.floodtitle.grid(row=3, column=2)
+        
+        
+        #Criando botão de Ver previsão enchente em 7 dias
+        self.buttonFlood =  self.createFloodButton()
 
     def setOnMapRegion(self):
         address = self.searchEntry.get()
@@ -329,3 +333,25 @@ class App(ctk.CTk):
             mapView.button_zoom_out.canvas_text, state="hidden"
         )
         return mapView
+
+    def createFloodButton(self):
+        iconFlood = ctk.CTkImage(light_image=Image.open('src/AlertaBR/Pages/images/Flood.png'), size=(54, 54))
+        btnFlood = ctk.CTkButton(self, width=54, height=54, corner_radius=5, fg_color="transparent", image=iconFlood, hover='lightgray', text='', bg_color="#000001", command=self.seeFloodForecast, hover_color='#81A8CD')
+        pywinstyles.set_opacity(btnFlood, color="#000001")
+        btnFlood.place(relx=0.9, rely=0.75, anchor='center')
+        return btnFlood
+    
+    def seeFloodForecast(self):
+        if (len(self.gmapWidget.canvas_marker_list) == 0):
+            return
+        
+        coords = self.gmapWidget.get_position()
+        
+        enviroment = enviromentInfos(coords[0], coords[1])
+        flood = enviroment.createFloodData()
+        
+        for i in range(7):
+            for key in flood.keys():
+                print(f'{key}: {flood[key][i]}')
+            print()
+        
