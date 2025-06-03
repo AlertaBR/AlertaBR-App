@@ -6,7 +6,7 @@ def formatAddress(street):
     if ' ' not in street:
         return street
     
-    street = verif.replaceString(street)
+    street = verif.replaceString(street, '+')
     
     return street
 

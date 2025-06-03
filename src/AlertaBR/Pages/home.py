@@ -6,6 +6,7 @@ import pywinstyles
 from datetime import datetime
 from src.AlertaBR.logic.maps import getStreetResponse
 from src.AlertaBR.logic.climatic import enviromentInfos
+from src.AlertaBR.logic import verifications as verif
 
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
@@ -34,6 +35,7 @@ class App(ctk.CTk):
     rainAlert = 10
     showerCritic = rainCritic / 2
     showerAlert = rainAlert / 2
+    
 
     def __init__(self):
         super().__init__()
@@ -50,26 +52,7 @@ class App(ctk.CTk):
         self.fontInfos2 = ctk.CTkFont(family="Arial", size=20, weight="normal", slant='italic');
 
         # Criando Mapa
-        self.gmapWidget = TkinterMapView(self, width=self.width, height=self.height)
-        self.gmapWidget.place(x=0, y=0, relwidth=1, relheight=1)  # Ocupa tudo
-        self.gmapWidget.set_tile_server(
-            "https://mt0.google.com/vt/lyrs=m&hl=en&x={x}&y={y}&z={z}&s=Ga", max_zoom=22
-        )  # Define o Mapa exibido como no Google Maps
-        self.gmapWidget.set_position(self.defaultLat, self.defaultLng)
-
-        # Desabilitando botões de zoom superior
-        self.gmapWidget.canvas.itemconfig(
-            self.gmapWidget.button_zoom_in.canvas_rect, state="hidden"
-        )
-        self.gmapWidget.canvas.itemconfig(
-            self.gmapWidget.button_zoom_in.canvas_text, state="hidden"
-        )
-        self.gmapWidget.canvas.itemconfig(
-            self.gmapWidget.button_zoom_out.canvas_rect, state="hidden"
-        )
-        self.gmapWidget.canvas.itemconfig(
-            self.gmapWidget.button_zoom_out.canvas_text, state="hidden"
-        )
+        self.gmapWidget = self.creatingMapView()
 
         self.searchFrame = ctk.CTkFrame(self, width=self.width, bg_color="#000001")
         self.searchFrame.pack(side="top", pady=80)
@@ -110,25 +93,17 @@ class App(ctk.CTk):
         )
         self.searchButton.pack(side="right", padx=10)
 
-        self.searchEntry.bind("<Return>", self.setOnMapRegion)
 
+        # Criando Menu do usuário
         self.userMenuFrame = ctk.CTkFrame(
             self, width=self.width, height=70, fg_color="#001D3D"
         )
         self.userMenuFrame.grid_columnconfigure((0, 1, 2), weight=1)
 
-        # Criando Icones
-        mapIcon = ctk.CTkImage(
-            light_image=Image.open("src/AlertaBR/Pages/images/map.png"), size=(33, 33)
-        )
-        profileIcon = ctk.CTkImage(
-            light_image=Image.open("src/AlertaBR/Pages/images/profile.png"),
-            size=(33, 33),
-        )
-        reportsIcon = ctk.CTkImage(
-            light_image=Image.open("src/AlertaBR/Pages/images/reports.png"),
-            size=(33, 33),
-        )
+        # Criando Icones do menu
+        mapIcon = ctk.CTkImage(light_image=Image.open("src/AlertaBR/Pages/images/map.png"), size=(33, 33))
+        profileIcon = ctk.CTkImage(light_image=Image.open("src/AlertaBR/Pages/images/profile.png"),size=(33, 33))
+        reportsIcon = ctk.CTkImage(light_image=Image.open("src/AlertaBR/Pages/images/reports.png"),size=(33, 33))
 
         # Criando botões do menu
         self.mapButton = ctk.CTkButton(
@@ -141,7 +116,6 @@ class App(ctk.CTk):
             hover_color="#003063",
             text="",
         )
-
         self.profileButton = ctk.CTkButton(
             self.userMenuFrame,
             width=33,
@@ -152,7 +126,6 @@ class App(ctk.CTk):
             hover_color="#003063",
             text="",
         )
-
         self.reportsButton = ctk.CTkButton(
             self.userMenuFrame,
             width=33,
@@ -163,12 +136,12 @@ class App(ctk.CTk):
             hover_color="#003063",
             text="",
         )
-
-        # Layout menu
+        # Layout do menu
         self.userMenuFrame.pack(side="bottom", fill="both")
         self.reportsButton.grid(row=0, column=0, padx=2, pady=2)
         self.mapButton.grid(row=0, column=1, padx=2, pady=2)
         self.profileButton.grid(row=0, column=2, padx=2, pady=2)
+
 
         # Criando frame de clima
         self.weatherFrame = ctk.CTkFrame(
@@ -218,7 +191,7 @@ class App(ctk.CTk):
             compound='left',
         )
 
-        # Layout
+        # Layout do clima
         self.rainTotal.grid(row=1, column=1, padx=0, pady=0, sticky='w')
         self.rainStatus.grid(row=2, column=0)
         self.data.grid(row=0, column=1, padx=0, pady=0, sticky='n')
@@ -228,8 +201,7 @@ class App(ctk.CTk):
 
     def setOnMapRegion(self):
         address = self.searchEntry.get()
-        special_characters = r'/@#_*()$!:£=+;><][]{}^~`´\'\"\\|'
-        if len(address) < 5 or not address or special_characters in address:
+        if verif.checkAddresIsValid(address):
             CTkMessagebox(
                 title="Endereço Incorreto",
                 message="O campo de endereço está vazio ou incorreto e deve ter algum conteúdo.",
@@ -277,18 +249,17 @@ class App(ctk.CTk):
     def inputRainStatusLabel(self, precip, wcode):
         self.weatherImage = ctk.CTkImage(size=(40, 40), light_image=Image.open("src/AlertaBR/Pages/images/WeathterisNormal.png"), )
 
-        # Não estamos verificando outr
-        if wcode in self.criticalCodes or precip >= 70:
+        if wcode in self.criticalCodes or precip >= self.criticalpct:
             self.weatherImage.configure(light_image=Image.open("src/AlertaBR/Pages/images/WeatherisCritical.png"))
             self.rainStatus.configure(text_color="#f00d0d")
             self.rainTotal.configure(text_color="#f00d0d")
             self.rainStatus.configure(text="Chuva Forte")
-        elif wcode in self.alertCodes or precip >= 50:
+        elif wcode in self.alertCodes or precip >= self.alertpct:
             self.weatherImage.configure(light_image=Image.open("src/AlertaBR/Pages/images/WeatherisAlert.png"))
             self.rainStatus.configure(text_color="#f0aa0d")
             self.rainTotal.configure(text_color="#f0aa0d")
             self.rainStatus.configure(text="Chuva Moderada")
-        elif wcode in self.okCodes:
+        elif wcode in self.okCodes or precip >= self.noRainpct:
             self.weatherImage.configure(light_image=Image.open("src/AlertaBR/Pages/images/WeatherisOk.png"))
             self.rainStatus.configure(text_color="#14AE5C")
             self.rainTotal.configure(text_color="#14AE5C")
@@ -297,8 +268,7 @@ class App(ctk.CTk):
             self.rainStatus.configure(text_color="#006CD2")
             self.rainTotal.configure(text_color="#006CD2")
             self.rainStatus.configure(text="Sem Chuva")
-            
-        self.floodtitle.configure(text="Sem Enchente")
+
         self.weatherImgLabel = ctk.CTkLabel(self.weatherFrame, image=self.weatherImage, text='', bg_color='white')
         pywinstyles.set_opacity(self.weatherImgLabel, color="white")
         self.weatherImgLabel.grid(row=1, column=0, padx=0, pady=0, sticky='nsew')
@@ -336,7 +306,26 @@ class App(ctk.CTk):
             self.rainInMM.configure(text=f"{shower:.1f} mm")
             return
         self.rainInMM.configure(text=f"{rain:.1f} mm")
-        
-    # def weatherContainer(self):
 
-    # def userMenuContainer(self):
+    def creatingMapView(self):
+        mapView = TkinterMapView(self, width=self.width, height=self.height)
+        mapView.place(x=0, y=0, relwidth=1, relheight=1)  # Ocupa tudo
+        mapView.set_tile_server(
+            "https://mt0.google.com/vt/lyrs=m&hl=en&x={x}&y={y}&z={z}&s=Ga", max_zoom=22
+        )  # Define o Mapa exibido como no Google Maps
+        mapView.set_position(self.defaultLat, self.defaultLng)
+
+        # Desabilitando botões de zoom superior
+        mapView.canvas.itemconfig(
+            mapView.button_zoom_in.canvas_rect, state="hidden"
+        )
+        mapView.canvas.itemconfig(
+            mapView.button_zoom_in.canvas_text, state="hidden"
+        )
+        mapView.canvas.itemconfig(
+            mapView.button_zoom_out.canvas_rect, state="hidden"
+        )
+        mapView.canvas.itemconfig(
+            mapView.button_zoom_out.canvas_text, state="hidden"
+        )
+        return mapView

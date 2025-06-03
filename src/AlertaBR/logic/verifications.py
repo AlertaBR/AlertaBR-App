@@ -38,17 +38,23 @@ def checkIfEmailIsValid(email):
     email (param) => endereço de email do usuário\n
     Tipo de retorno => boolean
     """
-    if not (containsValue(email, '@') and containsValue(email, '.com')):
-        return False
-    return True
+    return not (containsValue(email, '@') and containsValue(email, '.com'))
 
 
-def replaceString(strValue):
+def replaceString(strValue, c):
+    """Função que troca espaços vazios por uma caracterece que o usuário escolher
+
+    Args:
+        strValue (_str_): String em que o usuário quer modificar
+        c (_str_): String ou caractére que o usuário quer adicionar
+    Returns:
+        str: String formatada com a nova cartére
+    """
     fstring = ''
     for i in range(len(strValue)):
         char = strValue[i]
         if strValue[i] == ' ':
-            char = '+'
+            char = c
         fstring += char
     
     return fstring
@@ -68,4 +74,14 @@ def ConvertUnix(timestamp):
     return f'{date.hour}:{date.minute}h'
     
 
-    
+def checkAddresIsValid(address):
+    """Função que verifica se o endereço digitado é válido
+
+    Args:
+        address (_str_): Endereço digitado pelo usuário
+    Returns:
+        bool: Retorna se True se for válido e False para inválido.
+    """
+    address = address.strip()
+    special_characters = r'/@#_*()$!:£=+;><][]{}^~`´\'\"\\|'
+    return len(address) < 2 or not address or special_characters in address
