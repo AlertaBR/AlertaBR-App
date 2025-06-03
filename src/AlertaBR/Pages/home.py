@@ -53,6 +53,9 @@ class App(ctk.CTk):
 
         # Criando Mapa
         self.gmapWidget = self.creatingMapView()
+        
+        #Criando botão de Ver previsão enchente em 7 dias
+        self.buttonFlood =  self.createFloodButton()
 
         self.searchFrame = ctk.CTkFrame(self, width=self.width, bg_color="#000001")
         self.searchFrame.pack(side="top", pady=80)
@@ -200,8 +203,11 @@ class App(ctk.CTk):
         self.floodtitle.grid(row=3, column=2)
         
         
-        #Criando botão de Ver previsão enchente em 7 dias
-        self.buttonFlood =  self.createFloodButton()
+
+        # Criando TopLevel das infos de enchentes
+        self.floodPopup = ctk.CTkScrollableFrame(self, width=350, height=350, corner_radius=20, fg_color="white")
+        self.floodPopup.grid_rowconfigure((0, 1), weight=1)
+        
 
     def setOnMapRegion(self):
         address = self.searchEntry.get()
@@ -251,7 +257,7 @@ class App(ctk.CTk):
         self.inputFloodStatusLabel(flood['river_discharge'][0], currWeather['rain'], currWeather['showers'])
 
     def inputRainStatusLabel(self, precip, wcode):
-        self.weatherImage = ctk.CTkImage(size=(40, 40), light_image=Image.open("src/AlertaBR/Pages/images/WeathterisNormal.png"), )
+        self.weatherImage = ctk.CTkImage(size=(40, 40), light_image=Image.open("src/AlertaBR/Pages/images/WeathterisNormal.png"))
 
         if wcode in self.criticalCodes or precip >= self.criticalpct:
             self.weatherImage.configure(light_image=Image.open("src/AlertaBR/Pages/images/WeatherisCritical.png"))
@@ -277,7 +283,8 @@ class App(ctk.CTk):
         pywinstyles.set_opacity(self.weatherImgLabel, color="white")
         self.weatherImgLabel.grid(row=1, column=0, padx=0, pady=0, sticky='nsew')
     
-    def inputFloodStatusLabel(self, river, rain, shower):
+    def inputFloodStatusLabel(self, river, rain, shower, icon = None):
+        state = 0
         riskPrecip = (
             2 if rain > self.rainCritic else
             1 if rain >= self.rainAlert else
@@ -299,11 +306,33 @@ class App(ctk.CTk):
         riskAvg = (riskShower + riskPrecip + riskRiver) / 3
         
         if riskAvg < 1:
-            self.floodtitle.configure(text="Sem Enchente")
+            flood = "Sem Enchente"
+            state = 0
         elif riskAvg < 2:
-            self.floodtitle.configure(text="Possível Enchente")
+            flood = "Possível Enchente"
+            state = 1
         else:
-            self.floodtitle.configure(text="Terá Enchente")
+            flood = "Terá Enchente"
+            state = 2
+        
+        self.floodtitle.configure(text=flood)
+        if icon == None:
+            return
+        
+        color = ''
+        match(state):
+            case 0:
+                icon.configure(light_image=Image.open("src/AlertaBR/Pages/images/FloodisOk.png"))
+                color = '#14AE5C'
+            case 1:
+                icon.configure(light_image=Image.open("src/AlertaBR/Pages/images/FloodisAlert.png"))
+                color = '#F0AA0D'
+            case 2:
+                icon.configure(light_image=Image.open("src/AlertaBR/Pages/images/FloodisCritical.png"))
+                color = '#F00D0D'
+                
+        self.setFloodStatus(flood, color)
+    
     
     def showRainOrShowerValue(self, rain, shower):
         if shower > 0:
@@ -348,10 +377,54 @@ class App(ctk.CTk):
         coords = self.gmapWidget.get_position()
         
         enviroment = enviromentInfos(coords[0], coords[1])
+        # criar alternativa de rain e shower para 7 dias em climatic.py
         flood = enviroment.createFloodData()
+        week = 7
         
-        for i in range(7):
-            for key in flood.keys():
-                print(f'{key}: {flood[key][i]}')
-            print()
+        for i in range(week):
+            date = flood['date'][i]
+            river = flood['river_discharge'][i]
+            self.createFloodStatusFrame(date, river, 10, 5)
+        self.floodPopup.place(relx=0.5, rely=0.5, anchor=ctk.CENTER)  
+    
+    def setFloodStatus(self, floodText, color):
+        self.floodtext = floodText
+        self.color = color
+    
+    
+    def createFloodStatusFrame(self, date, river, rain, shower):
+        floodFontTitle = ctk.CTkFont(family="Arial", weight="bold", size=18)
+        floodFontText = ctk.CTkFont(family="Arial", weight="normal", size=16, slant='italic')
         
+        frame = ctk.CTkFrame(self.floodPopup, width=300, height=96, fg_color='transparent')
+        frame.grid_rowconfigure((0, 1, 2), weight=1)
+        frame.grid_columnconfigure((0, 1), weight=1)
+        
+        lblDate = ctk.CTkLabel(frame, font=self.fontText, text=date, compound='left')
+        lblFloodState = ctk.CTkLabel(frame, font=floodFontTitle)
+        lblRainSum = ctk.CTkLabel(frame, font=floodFontText)
+        
+        
+        # Icone
+        icon = ctk.CTkImage(size=(37, 42), light_image=Image.open("src/AlertaBR/Pages/images/FloodisOk.png"))
+        
+        # Chamando função que define o status da enchente
+        self.inputFloodStatusLabel(river, rain, shower, icon)
+        lblFloodState.configure(text_color=self.color)
+        lblFloodState.configure(text=self.floodtext)
+        lblRainSum.configure(text_color=self.color)
+        if shower > 1:
+            rainTxt = f'Chuva: {shower:.1f} mm'
+        else:
+            rainTxt = f'Chuva: {shower:.1f} mm'
+        lblRainSum.configure(text=rainTxt)
+        
+        lblIcon = ctk.CTkLabel(master=frame, text="", image=icon)
+        
+        # Montando Layout
+        lblDate.grid(row=0, column=0)
+        lblIcon.grid(row=1, column=0)
+        lblFloodState.grid(row=1, column=1, pady=0, sticky='nsew')
+        lblRainSum.grid(row=2, column=1)
+        
+        frame.pack(anchor='w')
