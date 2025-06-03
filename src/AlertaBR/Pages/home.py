@@ -3,12 +3,14 @@ from tkintermapview import TkinterMapView
 from CTkMessagebox import CTkMessagebox
 from PIL import Image
 import pywinstyles
+from datetime import datetime
 from src.AlertaBR.logic.maps import getStreetResponse
+from src.AlertaBR.logic.climatic import enviromentInfos
 
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
 
-fontfamily = "Poppins"
+fontfamily = "Segoe UI"
 
 
 class App(ctk.CTk):
@@ -16,6 +18,8 @@ class App(ctk.CTk):
     defaultLng = -46.6568236
     width = 390
     height = 844
+    rainCritic = 10
+    rainAlert = 2.6
 
     def __init__(self):
         super().__init__()
@@ -149,12 +153,28 @@ class App(ctk.CTk):
         
 
         # Criando frame de clima
-        self.weatherFrame = ctk.CTkFrame(
-            self, width=self.width, height=180, fg_color="white", corner_radius=20
-        )
-        # self.weatherContainer()
-        #   self.weatherFrame.grid(row = 1)
-        self.weatherFrame.pack(side="bottom")
+        self.weatherFrame = ctk.CTkFrame(self, width=self.width, height=180, fg_color="white", bg_color="#000001")
+        pywinstyles.set_opacity(self.weatherFrame, color="#000001")
+        self.weatherFrame.grid_rowconfigure((0, 1, 2, 3), weight=1)
+        self.weatherFrame.grid_columnconfigure((0, 1, 2), weight=1)
+        
+        
+        # Criando Infos showWeatherInfos
+        self.data = ctk.CTkLabel(self.weatherFrame, font=(fontfamily, 15), text=datetime.now().strftime('%d/%m/%y'), anchor="center")
+        self.rainStatus = ctk.CTkLabel(self.weatherFrame, font=("Ubuntu Medium", 15), anchor="e")
+        self.rainTotal = ctk.CTkLabel(self.weatherFrame, font=(fontfamily, 15), text='Total. ', anchor="e")
+        self.humid = ctk.CTkLabel(self.weatherFrame, font=(fontfamily, 15), text='Umid. ', anchor="e")
+        self.floodVolume = ctk.CTkLabel(self. weatherFrame, font=("Ubuntu Bold", 50), text='0.0', anchor="w")
+        self.floodtitle = ctk.CTkLabel(self.weatherFrame, font=("Segoe UI Semibold", 15), text='Volume em m³/s', anchor="w")
+        
+        # Layout
+        self.data.grid(row=0, column=1)
+        self.rainStatus.grid(row=1, column=0)
+        self.rainTotal.grid(row=2, column=0)
+        self.humid.grid(row=3, column=0)
+        self.floodVolume.grid(row=2, column=2)
+        self.floodtitle.grid(row=3, column=2)
+        
 
     def setOnMapRegion(self):
         self.gmapWidget.delete_all_marker()
@@ -176,9 +196,40 @@ class App(ctk.CTk):
         self.gmapWidget.set_position(lat, lon)
         self.gmapWidget.set_marker(lat, lon, text=coord["name"])
         self.searchEntry.delete(0, len(address))
+        self.showWeatherInfos(lat, lon)
+
+    def showWeatherInfos(self, lat, lon):
+        enviroment = enviromentInfos(lat, lon)
+        currWeather = enviroment.createWeatherData()
+        flood = enviroment.createFloodData()
+        
+        self.weatherFrame.pack(side="bottom", fill="both")
+        
+        self.inputRainStatusLabel(currWeather['rain'])
+        self.rainTotal.configure(text=f'Total. {currWeather['rain']:.1f}mm')
+        self.humid.configure(text=f'Umid. {currWeather['relative_humidity']:.0f}')
+        self.floodVolume.configure(text=f'{flood['river_discharge'][0]:.1f}')
+    
+    
+    def inputRainStatusLabel(self, rain):
+        if rain == 0:
+            self.rainStatus.configure(text_color="#006CD2")
+            self.rainStatus.configure(text="Sem Chuvas")
+            return
+        
+        if rain >= self.rainCritic:
+            self.rainStatus.configure(text_color="#f00d0d")
+            self.rainStatus.configure(text="Chuva Forte")
+        elif rain >= self.rainAlert:
+            self.rainStatus.configure(text_color="#f0aa0d")
+            self.rainStatus.configure(text="Chuva Amena")
+        else:
+            self.rainStatus.configure(text_color="#47f00d")
+            self.rainStatus.configure(text="Chuva Fraca")
+        
 
 
-# def weatherContainer(self):
+    # def weatherContainer(self):
 
 
-# def userMenuContainer(self):
+    # def userMenuContainer(self):

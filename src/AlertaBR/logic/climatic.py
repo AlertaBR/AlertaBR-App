@@ -64,19 +64,20 @@ class enviromentInfos:
 
         daily_river_discharge = daily.Variables(0).ValuesAsNumpy()
 
-        daily_data = {
-            "Data": pd.date_range(
+        flood_data = {
+            "date": pd.date_range(
                     start = pd.to_datetime(daily.Time(), unit = "s", utc = True),
                     end = pd.to_datetime(daily.TimeEnd(), unit = "s", utc = True),
                     freq = pd.Timedelta(seconds = daily.Interval()),
                     inclusive = "left").strftime("%d/%m/%y"),
-            "Volume Atual (m³/s)": daily_river_discharge,
+            "river_discharge": daily_river_discharge,
         }
         
-        for i in range(7):
-            for key in daily_data.keys():
-                print(f'{key}: {daily_data[key][i]}')
-            print()
+        # for i in range(7):
+        #     for key in daily_data.keys():
+        #         print(f'{key}: {daily_data[key][i]}')
+        #     print()
+        return flood_data
         
         
         
@@ -89,15 +90,16 @@ class enviromentInfos:
         self.__getWeatherData()
         current = self.__getCurrent()
         
-        currentWeather['Chuva(mm)'] = current.Variables(0).Value()
-        currentWeather['Previsão'] = current.Variables(1).Value()
-        currentWeather['Humidade Relativa'] = current.Variables(2).Value()
-        currentWeather['CoberturaNuvens'] = current.Variables(3).Value()
-        currentWeather['Pancadas'] = current.Variables(4).Value()
+        currentWeather['rain'] = current.Variables(0).Value()
+        currentWeather['precipitation'] = current.Variables(1).Value()
+        currentWeather['relative_humidity'] = current.Variables(2).Value()
+        currentWeather['cloud_cover'] = current.Variables(3).Value()
+        currentWeather['showers'] = current.Variables(4).Value()
 
-        print(f"Current time {ConvertUnix(current.Time())}")
-        for k,v in currentWeather.items():
-            print(f'{k} atual: {v}')
+        # print(f"Current time {ConvertUnix(current.Time())}")
+        # for k,v in currentWeather.items():
+        #     print(f'{k} atual: {v}')
+        return currentWeather
 
 
     def __getFloodData(self):
