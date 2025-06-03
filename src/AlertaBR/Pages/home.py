@@ -18,10 +18,22 @@ class App(ctk.CTk):
     defaultLng = -46.6568236
     width = 390
     height = 844
-    rainCritic = 10
-    rainAlert = 2.6
-    floodCritic = 80
-    floodAlert = 60
+    criticalpct = 70
+    alertpct = 50
+    noRainpct = 30
+   
+    
+    # Códigos de Clima obtidos na table universal WMO Code Table 4677 (Não estamos considerando névoa ou neve)
+    okCodes = [range(0,10), 20, 50, 51, 60, 61, 80]
+    alertCodes = [11, 12, 21, 52, 53, 62, 63, 81, 91, 92]
+    criticalCodes = [22, 32, 54, 55, 64, 65, 82, 94, 95, 96, 97, 98, 99]
+    
+    floodCritic = 300
+    floodAlert = 100
+    rainCritic = 30
+    rainAlert = 10
+    showerCritic = rainCritic / 2
+    showerAlert = rainAlert / 2
 
     def __init__(self):
         super().__init__()
@@ -207,9 +219,9 @@ class App(ctk.CTk):
         )
 
         # Layout
-        self.rainTotal.grid(row=1, column=1)
+        self.rainTotal.grid(row=1, column=1, padx=0, pady=0, sticky='w')
         self.rainStatus.grid(row=2, column=0)
-        self.data.grid(row=0, column=1)
+        self.data.grid(row=0, column=1, padx=0, pady=0, sticky='n')
         self.humid.grid(row=1, column=2)
         self.rainInMM.grid(row=2, column=2)
         self.floodtitle.grid(row=3, column=2)
@@ -259,45 +271,72 @@ class App(ctk.CTk):
             text=f"{currWeather['precipitation_probability']:.0f}%"
         )
         self.humid.configure(text=f"Umid. {currWeather['relative_humidity']:.0f}%")
-        self.rainInMM.configure(text=f"{currWeather['rain']:.1f} mm")
-        self.inputFloodStatusLabel(flood["river_discharge"][0], currWeather['rain'])
+        self.showRainOrShowerValue(currWeather['rain'], currWeather['showers'])
+        self.inputFloodStatusLabel(flood['river_discharge'][0], currWeather['rain'], currWeather['showers'])
 
-    def inputRainStatusLabel(self, precip):
-        self.weatherImage = ctk.CTkImage(size=(50, 50), light_image=Image.open("src/AlertaBR/Pages/images/WeathterisNormal.png"), )
+    def inputRainStatusLabel(self, precip, wcode):
+        self.weatherImage = ctk.CTkImage(size=(40, 40), light_image=Image.open("src/AlertaBR/Pages/images/WeathterisNormal.png"), )
 
-        if precip <= 40:
-            self.rainStatus.configure(text_color="#006CD2")
-            self.rainStatus.configure(text="Sem Chuvas")
-            return
-
-        if rain >= self.rainCritic or precip >= 70:
+        # Não estamos verificando outr
+        if wcode in self.criticalCodes or precip >= 70:
             self.weatherImage.configure(light_image=Image.open("src/AlertaBR/Pages/images/WeatherisCritical.png"))
             self.rainStatus.configure(text_color="#f00d0d")
             self.rainTotal.configure(text_color="#f00d0d")
             self.rainStatus.configure(text="Chuva Forte")
-        elif rain >= self.rainAlert or precip >= 50:
+        elif wcode in self.alertCodes or precip >= 50:
             self.weatherImage.configure(light_image=Image.open("src/AlertaBR/Pages/images/WeatherisAlert.png"))
             self.rainStatus.configure(text_color="#f0aa0d")
             self.rainTotal.configure(text_color="#f0aa0d")
-            self.rainStatus.configure(text="Chuva Amena")
-        else:
+            self.rainStatus.configure(text="Chuva Moderada")
+        elif wcode in self.okCodes:
             self.weatherImage.configure(light_image=Image.open("src/AlertaBR/Pages/images/WeatherisOk.png"))
             self.rainStatus.configure(text_color="#14AE5C")
             self.rainTotal.configure(text_color="#14AE5C")
             self.rainStatus.configure(text="Chuva Fraca")
+        else:
+            self.rainStatus.configure(text_color="#006CD2")
+            self.rainTotal.configure(text_color="#006CD2")
+            self.rainStatus.configure(text="Sem Chuva")
             
+        self.floodtitle.configure(text="Sem Enchente")
         self.weatherImgLabel = ctk.CTkLabel(self.weatherFrame, image=self.weatherImage, text='', bg_color='white')
         pywinstyles.set_opacity(self.weatherImgLabel, color="white")
-        self.weatherImgLabel.grid(row=1, column=0)
+        self.weatherImgLabel.grid(row=1, column=0, padx=0, pady=0, sticky='nsew')
+    
+    def inputFloodStatusLabel(self, river, rain, shower):
+        riskPrecip = (
+            2 if rain > self.rainCritic else
+            1 if rain >= self.rainAlert else
+            0
+        )
 
-    def inputFloodStatusLabel(self, flood, rain):
-        if flood >= self.floodCritic and rain >= self.rainCritic:
-            self.floodtitle.configure(text="Enchente CONFIRMADA")
-        elif flood >= self.floodAlert and rain >= self.rainAlert:
+        riskShower = (
+            2 if shower > self.showerCritic else
+            1 if shower >= self.showerAlert else
+            0
+        )
+
+        riskRiver = (
+            2 if river > self.floodCritic else
+            1 if river >= self.floodAlert else
+            0
+        )
+        
+        riskAvg = (riskShower + riskPrecip + riskRiver) / 3
+        
+        if riskAvg < 1:
+            self.floodtitle.configure(text="Sem Enchente")
+        elif riskAvg < 2:
             self.floodtitle.configure(text="Possível Enchente")
         else:
-            self.floodtitle.configure(text="Sem Enchente")
-
+            self.floodtitle.configure(text="Terá Enchente")
+    
+    def showRainOrShowerValue(self, rain, shower):
+        if shower > 0:
+            self.rainInMM.configure(text=f"{shower:.1f} mm")
+            return
+        self.rainInMM.configure(text=f"{rain:.1f} mm")
+        
     # def weatherContainer(self):
 
     # def userMenuContainer(self):

@@ -93,7 +93,7 @@ class enviromentInfos:
         currentWeather['rain'] = current.Variables(0).Value()
         currentWeather['precipitation_probability'] = current.Variables(1).Value()
         currentWeather['relative_humidity'] = current.Variables(2).Value()
-        currentWeather['wether_code'] = current.Variables(3).Value()
+        currentWeather['weather_code'] = current.Variables(3).Value()
         currentWeather['showers'] = current.Variables(4).Value()
 
         # print(f"Current time {ConvertUnix(current.Time())}")
@@ -119,7 +119,7 @@ class enviromentInfos:
         params = {
             "latitude": self.latitude,
             "longitude": self.longitude,
-            "current": ["rain", "precipitation_probability", "relative_humidity_2m", "weather_code", "showers"],
+            "current": ["precipitation", "precipitation_probability", "relative_humidity_2m", "weather_code", "showers"],
             "timezone": "auto",
             "forecast_days": 1
         }
