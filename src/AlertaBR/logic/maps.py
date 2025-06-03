@@ -17,7 +17,7 @@ def getStreetResponse(userInput):
     
     response = req.get(endpoint, headers=headers)
     if response.status_code == 200:
-        return response.json()[0]
+        return response.json()[0] if len(response.json()) > 0 else {}
     return {}
 
 

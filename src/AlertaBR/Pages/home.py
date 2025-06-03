@@ -179,10 +179,10 @@ class App(ctk.CTk):
     def setOnMapRegion(self):
         self.gmapWidget.delete_all_marker()
         address = self.searchEntry.get()
-        if len(address) < 8 or not address:
+        if len(address) < 5 or not address:
             CTkMessagebox(
-                title="Endereço Inválido",
-                message="O endereço digitado não é válido.",
+                title="Endereço Incorreto",
+                message="O campo de endereço está vazio ou incorreto e deve ter algum conteúdo.",
                 icon="cancel",
                 option_1="Ok",
             )
@@ -190,6 +190,16 @@ class App(ctk.CTk):
             return
 
         coord = getStreetResponse(address)
+        if len(coord) == 0:
+            CTkMessagebox(
+                title="Endereço Inválido",
+                message="O endereço digitado não existe ou está incorreto.",
+                icon="cancel",
+                option_1="Ok",
+            )
+            self.searchEntry.delete(0, len(address))
+            return
+        
         lat = float(coord["lat"])
         lon = float(coord["lon"])
 
@@ -206,8 +216,8 @@ class App(ctk.CTk):
         self.weatherFrame.pack(side="bottom", fill="both")
         
         self.inputRainStatusLabel(currWeather['rain'])
-        self.rainTotal.configure(text=f'Total. {currWeather['rain']:.1f}mm')
-        self.humid.configure(text=f'Umid. {currWeather['relative_humidity']:.0f}')
+        self.rainTotal.configure(text=f'Prev. {currWeather['precipitation_probability']:.0f}%')
+        self.humid.configure(text=f'Umid. {currWeather['relative_humidity']:.0f}%')
         self.floodVolume.configure(text=f'{flood['river_discharge'][0]:.1f}')
     
     
