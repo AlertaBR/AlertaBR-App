@@ -128,6 +128,7 @@ class App(ctk.CTk):
             image=profileIcon,
             hover_color="#003063",
             text="",
+            command=self.commingSoonPopUp
         )
         self.reportsButton = ctk.CTkButton(
             self.userMenuFrame,
@@ -138,6 +139,7 @@ class App(ctk.CTk):
             image=reportsIcon,
             hover_color="#003063",
             text="",
+            command=self.commingSoonPopUp
         )
         # Layout do menu
         self.userMenuFrame.pack(side="bottom", fill="both")
@@ -216,9 +218,11 @@ class App(ctk.CTk):
         address = self.searchEntry.get()
         if verif.checkAddresIsValid(address):
             CTkMessagebox(
-                title="Endereço Incorreto",
+                title="Erro encontrado",
+                header="Endereço Incorreto",
                 message="O campo de endereço está vazio ou incorreto e deve ter algum conteúdo.",
                 icon="cancel",
+                sound=True,
                 option_1="Ok",
             )
             self.searchEntry.delete(0, len(address))
@@ -227,9 +231,11 @@ class App(ctk.CTk):
         coord = getStreetResponse(address)
         if len(coord) == 0:
             CTkMessagebox(
-                title="Endereço Inválido",
+                title="Erro Encontrado",
+                header="Endereço Inválido",
                 message="O endereço digitado não existe ou está incorreto.",
                 icon="cancel",
+                sound=True,
                 option_1="Ok",
             )
             self.searchEntry.delete(0, len(address))
@@ -375,6 +381,13 @@ class App(ctk.CTk):
     
     def seeFloodForecast(self):
         if (len(self.gmapWidget.canvas_marker_list) == 0):
+            CTkMessagebox(
+                title="Não há dados!",
+                header="Pesquise uma cidade",
+                message="Não há dados no momento, pesquise algum lugar antes de ver o histórico de enchentes",
+                icon="warning",
+                option_1="Ok",
+            )
             return
         
         coords = self.gmapWidget.get_position()
@@ -450,4 +463,14 @@ class App(ctk.CTk):
             child = childs[i-1]
             child.destroy()
             i -= 1
-            
+    
+    def commingSoonPopUp(self):
+        CTkMessagebox(
+                title="Página em breve!",
+                header="Em breve!!",
+                message="Essa seção do aplicativo não está disponível no momento... Fique atualizado das novas versões!!",
+                icon="info",
+                option_1="Ok",
+                button_color="green",
+                fade_in_duration=0.5
+            )
