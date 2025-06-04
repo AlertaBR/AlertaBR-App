@@ -158,7 +158,7 @@ class App(ctk.CTk):
         self.data = ctk.CTkLabel(
             self.weatherFrame,
             font=self.fontInfos,
-            text=f"Hoje: {datetime.now().strftime('%d/%m/%y')}",
+            text=f"{datetime.now().strftime('%d/%m/%y - %H:%M')}",
             compound='center',
             anchor='center'
         )
@@ -206,7 +206,10 @@ class App(ctk.CTk):
 
         # Criando TopLevel das infos de enchentes
         self.floodPopup = ctk.CTkScrollableFrame(self, width=350, height=350, corner_radius=20, fg_color="white")
-        self.floodPopup.grid_rowconfigure((0, 1), weight=1)
+        
+        self.exitIcon = ctk.CTkImage(light_image=Image.open('src/AlertaBR/Pages/images/Exit.png'))
+        self.exitButton = ctk.CTkButton(self.floodPopup, width=20, height=20, fg_color='transparent', image=self.exitIcon, text='', command=self.exitPopUp)
+        self.exitButton.pack(anchor='e')
         
 
     def setOnMapRegion(self):
@@ -381,6 +384,8 @@ class App(ctk.CTk):
         flood = enviroment.createFloodData()
         week = 7
         
+        if len(self.floodPopup.children) > 0:
+            self.deleteAllContent(self.floodPopup)
         for i in range(week):
             date = flood['date'][i]
             river = flood['river_discharge'][i]
@@ -428,3 +433,17 @@ class App(ctk.CTk):
         lblRainSum.grid(row=2, column=1)
         
         frame.pack(anchor='w')
+        
+    def exitPopUp(self):
+        self.floodPopup.place_forget()
+        
+    def deleteAllContent(self, frame: ctk.CTkFrame):
+        i = len(frame.winfo_children())
+        childs = frame.winfo_children()
+        
+        # Deixa de remover 1 child, que é justamente o botão de sair do popup
+        while i > 1:
+            child = childs[i-1]
+            child.destroy()
+            i -= 1
+            
