@@ -6,11 +6,10 @@
 ![GitHub repo size](https://img.shields.io/github/repo-size/AlertaBR/AlertaBR-App?style=for-the-badge)
 ![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/AlertaBR/AlertaBR-App/latest/total?style=for-the-badge)
 
+<img src="https://i.imgur.com/kIXaCYM.gif" width=650>
 </div>
 
-![Gif Representativo do APP]()
-
-**AlertaBR** é um aplicativo desenvolvido em Python que permite o usuário verificar, com base em uma localização personalizada (rua, cidade, CEP ou coordenadas geográficas), as **condições climáticas** e o **risco de enchentes para os próximos 7 dias**. A proposta é fornecer previsibilidade meteorológica com usabilidade simples e visual.
+> **AlertaBR** é um aplicativo desenvolvido em Python que permite o usuário verificar, com base em uma localização personalizada, as **condições climáticas** e o **risco de enchentes para os próximos 7 dias**. A proposta é fornecer previsibilidade meteorológica com usabilidade simples e visual.
 
 ---
 
