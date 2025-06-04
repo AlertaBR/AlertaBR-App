@@ -380,7 +380,8 @@ class App(ctk.CTk):
         coords = self.gmapWidget.get_position()
         
         enviroment = enviromentInfos(coords[0], coords[1])
-        # criar alternativa de rain e shower para 7 dias em climatic.py
+        
+        weather = enviroment.createWeatherData()
         flood = enviroment.createFloodData()
         week = 7
         
@@ -389,7 +390,10 @@ class App(ctk.CTk):
         for i in range(week):
             date = flood['date'][i]
             river = flood['river_discharge'][i]
-            self.createFloodStatusFrame(date, river, 10, 5)
+            rain = weather['rainSum'][i]
+            shower = weather['showersSum'][i]
+            
+            self.createFloodStatusFrame(date, river, rain, shower)
         self.floodPopup.place(relx=0.5, rely=0.5, anchor=ctk.CENTER)  
     
     def setFloodStatus(self, floodText, color):

@@ -85,21 +85,24 @@ class enviromentInfos:
         """
             Cria uma tabela em terminal com a previsão de chuva dos próximos dias 
         """
-        currentWeather = {}
+        weatherInfos = {}
         
         self.__getWeatherData()
         current = self.__getCurrent()
+        daily = self.__getDaily()
         
-        currentWeather['rain'] = current.Variables(0).Value()
-        currentWeather['precipitation_probability'] = current.Variables(1).Value()
-        currentWeather['relative_humidity'] = current.Variables(2).Value()
-        currentWeather['weather_code'] = current.Variables(3).Value()
-        currentWeather['showers'] = current.Variables(4).Value()
+        weatherInfos['rain'] = current.Variables(0).Value()
+        weatherInfos['rainSum'] = daily.Variables(0).ValuesAsNumpy()
+        weatherInfos['precipitation_probability'] = current.Variables(1).Value()
+        weatherInfos['relative_humidity'] = current.Variables(2).Value()
+        weatherInfos['weather_code'] = current.Variables(3).Value()
+        weatherInfos['showers'] = current.Variables(4).Value()
+        weatherInfos['showersSum'] = daily.Variables(1).ValuesAsNumpy()
 
         # print(f"Current time {ConvertUnix(current.Time())}")
         # for k,v in currentWeather.items():
         #     print(f'{k} atual: {v}')
-        return currentWeather
+        return weatherInfos
 
 
     def __getFloodData(self):
@@ -119,8 +122,9 @@ class enviromentInfos:
         params = {
             "latitude": self.latitude,
             "longitude": self.longitude,
+            "daily": ["rain_sum", "showers_sum"],
             "current": ["precipitation", "precipitation_probability", "relative_humidity_2m", "weather_code", "showers"],
             "timezone": "auto",
-            "forecast_days": 1
+            "forecast_days": 7
         }
         self.response = self.openmeteo.weather_api(url, params)
