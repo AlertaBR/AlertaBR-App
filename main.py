@@ -1,7 +1,8 @@
-from src.AlertaBR.Pages.home import App
+from src.AlertaBR.Pages.app import App
 
 def main():
     app = App()
     app.mainloop()
-    
-main()
+
+if __name__ == "__main__":
+    main()

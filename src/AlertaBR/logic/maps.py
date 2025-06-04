@@ -19,13 +19,3 @@ def getStreetResponse(userInput):
     if response.status_code == 200:
         return response.json()[0] if len(response.json()) > 0 else {}
     return {}
-
-
-# userInput = formatAddress(input('Digite um endereço: '))
-# dictStreet = getStreetResponse(userInput)
-
-# env = clima.enviromentInfos(dictStreet['lat'], dictStreet['lon'])
-
-# env.createWeatherData()
-# print('\n')
-# env.createFloodData()
