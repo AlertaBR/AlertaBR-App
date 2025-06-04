@@ -43,7 +43,7 @@ class App(ctk.CTk):
         self.title("AlertaBR")
         self.geometry(f"{self.width}x{self.height}")
         self.resizable(0, 0)
-        #  self.iconbitmap(default="src/AlertaBR/Pages/images/favicon.ico")
+        self.iconbitmap(r"src\AlertaBR\Pages\images\favicon.ico")
         self.eval("tk::PlaceWindow . center")
         
         self.fontText = ctk.CTkFont(family="Arial", size=16, weight="normal")
