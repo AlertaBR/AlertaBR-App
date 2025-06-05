@@ -2,9 +2,9 @@ customtkinter
 tkintermapview
 CTkMessagebox
 pandas
-openmeteo-requests
 requests
-requests-cache
-retry-requests
 numpy
 pywinstyles
+openmeteo-requests
+requests-cache
+retry-requests

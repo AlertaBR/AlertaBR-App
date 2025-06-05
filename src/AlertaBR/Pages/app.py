@@ -269,24 +269,29 @@ class App(ctk.CTk):
         self.weatherImage = ctk.CTkImage(size=(40, 40), light_image=Image.open("src/AlertaBR/Pages/images/WeathterisNormal.png"))
 
         if wcode in self.criticalCodes or precip >= self.criticalpct:
-            self.weatherImage.configure(light_image=Image.open("src/AlertaBR/Pages/images/WeatherisCritical.png"))
-            self.rainStatus.configure(text_color="#f00d0d")
-            self.rainTotal.configure(text_color="#f00d0d")
-            self.rainStatus.configure(text="Chuva Forte")
+            wImg = "src\\AlertaBR\\Pages\\images/WeatherisCritical.png"
+            color = "#f00d0d"
+            rStatus = "Chuva Forte"
         elif wcode in self.alertCodes or precip >= self.alertpct:
-            self.weatherImage.configure(light_image=Image.open("src/AlertaBR/Pages/images/WeatherisAlert.png"))
-            self.rainStatus.configure(text_color="#f0aa0d")
-            self.rainTotal.configure(text_color="#f0aa0d")
-            self.rainStatus.configure(text="Chuva Moderada")
+            wImg = "src/AlertaBR/Pages/images/WeatherisAlert.png"
+            color = "#f0aa0d"
+            color = "#f0aa0d"
+            rStatus = "Chuva Moderada"
         elif wcode in self.okCodes or precip >= self.noRainpct:
-            self.weatherImage.configure(light_image=Image.open("src/AlertaBR/Pages/images/WeatherisOk.png"))
-            self.rainStatus.configure(text_color="#14AE5C")
-            self.rainTotal.configure(text_color="#14AE5C")
-            self.rainStatus.configure(text="Chuva Fraca")
+            wImg = "src/AlertaBR/Pages/images/WeatherisOk.png"
+            color = "#14AE5C"
+            color = "#14AE5C"
+            rStatus = "Chuva Fraca"
         else:
-            self.rainStatus.configure(text_color="#006CD2")
-            self.rainTotal.configure(text_color="#006CD2")
-            self.rainStatus.configure(text="Sem Chuva")
+            wImg = "src/AlertaBR/Pages/images/WeathterisNormal.png"
+            color = "#006CD2"
+            color = "#006CD2"
+            rStatus = "Sem Chuva"
+
+        self.weatherImage.configure(light_image=Image.open(wImg))
+        self.rainStatus.configure(text_color=color)
+        self.rainTotal.configure(text_color=color)
+        self.rainStatus.configure(text=rStatus)
 
         self.weatherImgLabel = ctk.CTkLabel(self.weatherFrame, image=self.weatherImage, text='', bg_color='white')
         pywinstyles.set_opacity(self.weatherImgLabel, color="white")
