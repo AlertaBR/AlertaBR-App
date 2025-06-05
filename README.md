@@ -11,6 +11,8 @@
 
 **AlertaBR é um aplicativo mobile** voltado à prevenção de enchentes em quaisquer região do Brasil e principalmente as regiões de risco. Monitorando em tempo real com base na localização selecionadas pelo usuário dentro do app, utiliza de alertas visuais geolocalizados sobre condições climáticas críticas, moderadas ou normais, notificando o usuário com antecedência para que possa agir de forma segura e preventiva.
 
+<!-- Link do vídeo no YT -->
+[Saiba Mais sobre o app](#)
 ---
 
 ## 🚀 Funcionalidades
