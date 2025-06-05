@@ -17,28 +17,7 @@ class enviromentInfos:
         self.latitude = latitude
         self.longitude = longitude
         self.response = None
-
-    def showHourlyWeatherInfos(self):
-        """Mostra as informações de Enchentes por dia no local ou das previsiões de chuva e humidade
-
-        Args:
-            climate (climateTypes, optional): Define qual clima o usuário quer analisar. Defaults to climateTypes.FLOOD.
-        """
-        self.__getWeatherData()
-        self.__showInfos()
-    
-    def showDailyFloodInfos(self):
-        self.__getFloodData()
-        self.__showInfos()
-
-
-    def __showInfos(self):
-        for i in range(len(self.response)):
-            resp = self.response[i]
-            print(f"Coordinates {resp.Latitude()}°N {resp.Longitude()}°E")
-            print(f"Elevation {resp.Elevation()} m asl")
-            print(f"Timezone {resp.Timezone()}")
-    
+   
     def __getDaily(self):
         """Retorna a data do dia a partindo de um response especificado
 
