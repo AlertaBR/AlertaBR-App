@@ -6,7 +6,7 @@
 ![GitHub repo size](https://img.shields.io/github/repo-size/AlertaBR/AlertaBR-App?style=for-the-badge)
 ![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/AlertaBR/AlertaBR-App/latest/total?style=for-the-badge)
 
-<img src="./assets/App-presentGIF.gif" width=650>
+<img src="./assets/App-presentGIF.gif" alt="Demonstração do app AlertaBR" width=650 style="border-radius: 20px; border: 2px solid gray;">
 </div>
 
 **AlertaBR é um aplicativo mobile** voltado à prevenção de enchentes em quaisquer região do Brasil e principalmente as regiões de risco. Monitorando em tempo real com base na localização selecionadas pelo usuário dentro do app, utiliza de alertas visuais geolocalizados sobre condições climáticas críticas, moderadas ou normais, notificando o usuário com antecedência para que possa agir de forma segura e preventiva.
@@ -53,7 +53,7 @@ A versão compilada do aplicativo está disponível na seção de Releases do re
 
 Você pode baixá-la para executar o programa diretamente, sem a necessidade de instalar o Python ou bibliotecas adicionais.
 
-👉 [Baixe o aplicativo agora!]()
+👉 **[Baixe o aplicativo agora!]()**
 
 ### 🖥️ Usando o repositório
 
