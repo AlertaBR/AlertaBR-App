@@ -12,7 +12,7 @@
 **AlertaBR é um aplicativo mobile** voltado à prevenção de enchentes em quaisquer região do Brasil e principalmente as regiões de risco. Monitorando em tempo real com base na localização selecionadas pelo usuário dentro do app, utiliza de alertas visuais geolocalizados sobre condições climáticas críticas, moderadas ou normais, notificando o usuário com antecedência para que possa agir de forma segura e preventiva.
 
 <!-- Link do vídeo no YT -->
-[Saiba Mais sobre o app](#)
+### [Saiba Mais sobre o app](https://youtu.be/GJEOOeA7qE4)
 ---
 
 ## 🚀 Funcionalidades
@@ -53,7 +53,7 @@ A versão compilada do aplicativo está disponível na seção de Releases do re
 
 Você pode baixá-la para executar o programa diretamente, sem a necessidade de instalar o Python ou bibliotecas adicionais.
 
-👉 **[Baixe o aplicativo agora!]()**
+👉 **[Baixe o aplicativo agora!](https://github.com/AlertaBR/AlertaBR-App/releases/tag/v1.0.0)**
 
 ### 🖥️ Usando o repositório
 
